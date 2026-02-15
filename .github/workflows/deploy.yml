@@ -1,0 +1,49 @@
+name: Deploy HomeOS Infra
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Tailscale Auth Key
+        id: fetch-key
+        run: |
+          # Exchange OAuth credentials for a temporary Auth Key
+          RESPONSE=$(curl -s -u "${{ secrets.TS_OAUTH_ID }}:${{ secrets.TS_OAUTH_SECRET }}" \
+            -d "grant_type=client_credentials" \
+            https://api.tailscale.com/api/v2/oauth/token)
+          
+          ACCESS_TOKEN=$(echo $RESPONSE | jq -r .access_token)
+          
+          # Generate a reusable, pre-authorized key that expires in 1 hour
+          KEY_RESPONSE=$(curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+            -X POST \
+            -d '{"capabilities": {"devices": {"create": {"reusable": true, "ephemeral": false, "preauthorized": true, "tags": ["tag:server"]}}}}' \
+            https://api.tailscale.com/api/v2/tailnet/-/keys)
+          
+          echo "TS_AUTHKEY=$(echo $KEY_RESPONSE | jq -r .key)" >> $GITHUB_OUTPUT
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            if [ ! -d "~/infra-homeos" ]; then
+              git clone https://github.com/${{ github.repository }}.git ~/infra-homeos
+            fi
+            cd ~/infra-homeos
+            git pull origin main
+            
+            # Use the fresh key from the previous step
+            echo "TS_AUTHKEY=${{ steps.fetch-key.outputs.TS_AUTHKEY }}" > .env
+            echo "TZ=${{ secrets.TZ }}" >> .env
+            
+            chmod +x deploy.sh
+            ./deploy.sh
