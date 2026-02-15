@@ -21,7 +21,8 @@ jobs:
               git clone https://github.com/${{ github.repository }}.git ~/infra-homeos
             fi
             cd ~/infra-homeos
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
             
             # Setup environment variables without overwriting existing ones (like DOMAIN/EMAIL)
             touch .env
