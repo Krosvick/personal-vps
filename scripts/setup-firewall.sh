@@ -6,28 +6,30 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-echo "Configuring UFW for HomeOS (Tailscale Mode)..."
+echo "Hardening UFW for HomeOS (Tailscale-Only Mode)..."
+
+# Reset UFW to a clean state
+ufw --force reset
 
 # Default policies
 ufw default deny incoming
 ufw default allow outgoing
-
-# Allow SSH (Important!)
-ufw allow 22/tcp comment 'SSH'
 
 # Allow Tailscale traffic
 # Tailscale uses UDP 41641 for direct connections (WireGuard)
 ufw allow 41641/udp comment 'Tailscale Direct'
 
 # Allow all traffic from the Tailscale interface (tailscale0)
-# This allows your private devices to talk to HA
+# This allows your private devices to talk to HA and handles SSH via Tailscale
 ufw allow in on tailscale0 comment 'Allow Tailscale internal'
 
-# Home Assistant (mDNS and Discovery)
-# Still needed for local network discovery if you bridge to home
-ufw allow 8123/tcp comment 'Home Assistant Web UI'
-ufw allow 5353/udp comment 'mDNS'
-ufw allow 1900/udp comment 'SSDP'
+# SSH via Tailscale only (Extra explicit rule for safety)
+ufw allow in on tailscale0 to any port 22 proto tcp comment 'SSH via Tailscale'
+
+# Local Network Discovery (mDNS and SSDP)
+# Restricted to LAN only (adjust subnet if your LAN is not 192.168.1.x)
+ufw allow from 192.168.1.0/24 to any port 5353 proto udp comment 'mDNS LAN only'
+ufw allow from 192.168.1.0/24 to any port 1900 proto udp comment 'SSDP LAN only'
 
 # Enable Firewall
 echo "y" | ufw enable
@@ -35,6 +37,8 @@ echo "y" | ufw enable
 ufw status verbose
 
 echo "--------------------------------------------------------"
-echo "Tailscale setup complete. No public 80/443 ports needed."
-echo "You can now reach Home Assistant via your Tailscale IP."
+echo "Firewall hardening complete."
+echo "PUBLIC PORTS CLOSED: 22 (SSH), 8123 (HA), 5353, 1900"
+echo "ACCESS: Use your Tailscale IP to reach this machine."
+echo "VERIFY: Run 'tailscale status' to ensure connectivity."
 echo "--------------------------------------------------------"

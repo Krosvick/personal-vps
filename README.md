@@ -22,7 +22,7 @@ Go to your repo **Settings > Secrets and Variables > Actions** and add:
 ### 2. Generate Tailscale OAuth Client
 1. Go to [Tailscale OAuth Settings](https://login.tailscale.com/admin/settings/oauth).
 2. Generate a client with `devices:write` scope.
-3. (Optional) Assign a tag like `tag:server`.
+3. (Optional) Assign a tag like `tag:server-home`.
 
 ### 3. Initial Server Setup
 On your Oracle VM, run these once:
