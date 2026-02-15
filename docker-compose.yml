@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       - TS_OAUTH_ID=${TS_OAUTH_ID}
-      - TS_OAUTH_SECRET=${TS_OAUTH_SECRET}
+      - TS_AUTHKEY=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_EXTRA_ARGS=--advertise-tags=tag:server-home
     volumes:
@@ -17,7 +17,7 @@ services:
       - SYS_MODULE
     network_mode: host
     labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"  
 
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
