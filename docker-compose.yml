@@ -5,7 +5,8 @@ services:
     hostname: homeos-vps
     restart: unless-stopped
     environment:
-      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_OAUTH_ID=${TS_OAUTH_ID}
+      - TS_OAUTH_SECRET=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_EXTRA_ARGS=--advertise-tags=tag:server-home
     volumes:
@@ -22,7 +23,9 @@ services:
     image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     restart: unless-stopped
-    network_mode: host
+    network_mode: service:tailscale
+    depends_on:
+      - tailscale
     volumes:
       - ./homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
