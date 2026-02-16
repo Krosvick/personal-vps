@@ -11,7 +11,7 @@ services:
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_EXTRA_ARGS=--advertise-tags=tag:server-home --accept-routes
       - TS_USERSPACE=false
-      - TS_ACCEPT_DNS=false
+      - TS_AUTH_ONCE=true
     volumes:
       - ./tailscale/state:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
