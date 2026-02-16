@@ -10,7 +10,6 @@ services:
       - TS_AUTHKEY=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_EXTRA_ARGS=--advertise-tags=tag:server-home --accept-routes
-      - TS_USERSPACE=false
       - TS_ACCEPT_DNS=true
     volumes:
       - ./tailscale/state:/var/lib/tailscale
