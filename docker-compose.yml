@@ -8,7 +8,7 @@ services:
       - TS_OAUTH_ID=${TS_OAUTH_ID}
       - TS_AUTHKEY=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_EXTRA_ARGS=--advertise-tags=tag:server-home
+      - TS_EXTRA_ARGS=--advertise-tags=tag:server-home --accept-routes
     volumes:
       - ./tailscale/state:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
