@@ -19,16 +19,15 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     network_mode: host
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"  
 
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     restart: unless-stopped
-    network_mode: service:tailscale
+    network_mode: host
     depends_on:
       - tailscale
+
     volumes:
       - ./homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
