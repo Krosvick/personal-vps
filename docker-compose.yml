@@ -4,11 +4,14 @@ services:
     container_name: tailscale
     hostname: homeos-vps
     restart: unless-stopped
+    privileged: true
     environment:
       - TS_OAUTH_ID=${TS_OAUTH_ID}
       - TS_AUTHKEY=${TS_OAUTH_SECRET}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_EXTRA_ARGS=--advertise-tags=tag:server-home --accept-routes
+      - TS_USERSPACE=false
+      - TS_ACCEPT_DNS=true
     volumes:
       - ./tailscale/state:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
